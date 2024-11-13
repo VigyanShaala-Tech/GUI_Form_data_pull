@@ -24,3 +24,4 @@ boto3==1.28.18
 fpdf==1.7.2
 pydrive2==1.10.1
 mysql-connector-python==8.0.28
+openpyxl==3.1.2
