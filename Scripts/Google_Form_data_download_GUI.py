@@ -35,6 +35,9 @@ password = st.secrets['DB_PASSWORD']
 host = st.secrets['DB_ENDPOINT']
 port = st.secrets['DB_PORT']  # Replace with your MySQL port if different
 database_name = st.secrets['DB_NAME']
+Career_sheet = st.secrets['SH_CARLINK']
+Mentor_sheet= st.secrets['SH_MENLINK']
+
 
 
 # Create the connection string for the AWS RDS MySQL database using the create_engine function
@@ -117,7 +120,7 @@ if st.button(combined_button_text):
             # Display the updated DataFrame in Streamlit
             st.write("Recent Entries")
             st.write(df2)
-            st.write(f"[Open Google Sheet]({SH_CARID})")
+            st.write(f"[Open Google Sheet]({Mentor_sheet})")
             
         # Save the data to a Google sheet.
         #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
@@ -155,7 +158,7 @@ if st.button(combined_button_text):
             client = gspread.authorize(creds)
 
             # Open the Google Sheet
-            sheet_key = st.secrets['SH_MENLINK']  # Replace with your sheet key
+            sheet_key = st.secrets['SH_MENID']  # Replace with your sheet key
             sheet = client.open_by_key(sheet_key).sheet1
 
             # Get existing records from the sheet
@@ -191,7 +194,7 @@ if st.button(combined_button_text):
             # Display the updated DataFrame in Streamlit
             st.write("Recent Entries")
             st.write(df2)
-            st.write(f"[Open Google Sheet]({SH_MENLINK})")
+            st.write(f"[Open Google Sheet]({Career_sheet})")
         # Save the data to a Google sheet.
         #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
             st.success("Mentor Recruitment data saved successfully in Mentor ")
