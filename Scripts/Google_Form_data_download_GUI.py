@@ -74,7 +74,7 @@ if st.button(combined_button_text):
         
         
         # Insert the random number into the Google Sheet
-            sheet_key = st.secrets['SH_MENREC']
+            sheet_key = st.secrets['SH_CARID']
         
     
         # Open the Google Sheet by key and retrieve the specific worksheet
@@ -155,7 +155,7 @@ if st.button(combined_button_text):
             client = gspread.authorize(creds)
 
             # Open the Google Sheet
-            sheet_key = st.secrets['SH_CARCOA']  # Replace with your sheet key
+            sheet_key = st.secrets['SH_MENLINK']  # Replace with your sheet key
             sheet = client.open_by_key(sheet_key).sheet1
 
             # Get existing records from the sheet
