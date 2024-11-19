@@ -120,7 +120,7 @@ if st.button(combined_button_text):
             # Display the updated DataFrame in Streamlit
             st.write("Recent Entries")
             st.write(df2)
-            st.write(f"[Open Google Sheet]({Mentor_sheet})")
+            st.write(f"[Open Google Sheet]({Career_sheet})")
             
         # Save the data to a Google sheet.
         #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
@@ -194,7 +194,7 @@ if st.button(combined_button_text):
             # Display the updated DataFrame in Streamlit
             st.write("Recent Entries")
             st.write(df2)
-            st.write(f"[Open Google Sheet]({Career_sheet})")
+            st.write(f"[Open Google Sheet]({Mentor_sheet})")
         # Save the data to a Google sheet.
         #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
             st.success("Mentor Recruitment data saved successfully in Mentor ")
