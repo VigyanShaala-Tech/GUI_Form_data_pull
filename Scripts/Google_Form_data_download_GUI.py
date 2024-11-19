@@ -10,6 +10,7 @@ import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy import create_engine, text
 from openpyxl.workbook import Workbook
+from google.oauth2 import service_account
 
 
 # Display the PNG image in the top centre of the Streamlit sidebar with custom dimensions
@@ -48,25 +49,148 @@ if st.button(combined_button_text):
         
         # Read data into a DataFrame
         df = pd.read_sql(sql_query, con=engine)
+        df1=pd.DataFrame(df)
+        
+        # Sort the DataFrame in descending order and add Sr No
+        #df2 = df1[::-1].reset_index(drop=True)
+        #df2.insert(0, "Sr No", range(len(df1), 0, -1))  # Add Sr No column
         
         # Display the DataFrame in the Streamlit app
-        st.write(df)
+        #st.write('Recent Entries')
+        #st.write(df2)
         
+        # Fetch service account credentials from Supabase storage
+        supabase_credentials_url = "https://twetkfnfqdtsozephdse.supabase.co/storage/v1/object/sign/stemcheck/studied-indexer-431906-h1-e3634918ab42.json?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdGVtY2hlY2svc3R1ZGllZC1pbmRleGVyLTQzMTkwNi1oMS1lMzYzNDkxOGFiNDIuanNvbiIsImlhdCI6MTcyNjkwMzEzNywiZXhwIjoxNzU4NDM5MTM3fQ.d-YWFIIV3ue7eUwUIemVHKrxVSgsdy3Dm34bCfkKBPE&t=2024-09-21T07%3A18%3A57.318Z"
+        response = requests.get(supabase_credentials_url)
+    
+        if response.status_code == 200:
+        # Decode the content of the response as a JSON keyfile and create service account credentials
+            service_account_info = response.json()
+        
+        # Use the service account info to create credentials
+            creds = service_account.Credentials.from_service_account_info(service_account_info, scopes=['https://www.googleapis.com/auth/spreadsheets'])
+            client = gspread.authorize(creds)
+
+        
+        
+        # Insert the random number into the Google Sheet
+            sheet_key = st.secrets['SH_MENREC']
+        
+    
+        # Open the Google Sheet by key and retrieve the specific worksheet
+            sheet = client.open_by_key(sheet_key).sheet1  # Update with the correct sheet name or index
+
+
+            # Get existing records from the sheet
+            existing_records = sheet.get_all_values()
+
+            # Extract the header from the first row
+            existing_headers = existing_records[0]
+
+            # Convert existing records to DataFrame (skip headers)
+            existing_df = pd.DataFrame(existing_records[1:], columns=existing_headers)
+
+            LinkedIn_column = 'Enter your LinkedIn profile link here'
+
+            if LinkedIn_column not in df1.columns:
+                st.error(f"{LinkedIn_column} column is missing in the new data.")
+            else:
+            # Extract the 'Enter your WhatsApp number (with country code, DONOT ADD '+') *' column from existing records and the new data
+                existing_ids = existing_df[LinkedIn_column].tolist() if LinkedIn_column in existing_df.columns else []
+    
+            # Filter rows where 'Enter your WhatsApp number (with country code, DONOT ADD '+') *' is not in existing records
+                new_entries = df1[~df1[LinkedIn_column].isin(existing_ids)]  
+    
+                if not new_entries.empty:
+                # Append only new rows to the sheet
+                    rows_to_append = new_entries.values.tolist()
+                    for row in rows_to_append:
+                        sheet.append_row(row)
+                    st.success(f"{len(rows_to_append)} new entries added to the sheet.")
+                else:
+                    st.info("No new entries to add.")
+
+            # Sort the DataFrame in descending order and add serial numbers
+            df2 = df1[::-1].reset_index(drop=True)
+            df2.insert(0, "Sr No", range(len(df2), 0, -1))
+
+            # Display the updated DataFrame in Streamlit
+            st.write("Recent Entries")
+            st.write(df2)
+            
         # Save the data to a Google sheet.
-        df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
-        st.success("Career Recruitment data saved successfully in Career ")
+        #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
+            st.success("Career Recruitment data saved successfully in Career ")
 
     elif Form_name == 'Mentor Recruitment':
         # SQL query to retrieve data for Mentor Recruitment
         sql_query = "SELECT * FROM Mentor_Recruitment"
-        
+
         # Read data into a DataFrame
         df = pd.read_sql(sql_query, con=engine)
+        df1=pd.DataFrame(df)
+        
+        # Sort the DataFrame in descending order and add Sr No
+        #df2 = df1[::-1].reset_index(drop=True)
+        #df2.insert(0, "Sr No", range(len(df1), 0, -1))  # Add Sr No column
         
         # Display the DataFrame in the Streamlit app
-        st.write(df)
-        
-        # Save the data to a google sheet.
-        df.to_excel(r"C:\Users\User\Downloads\Mentor data file.xlsx")
-        st.success("Mentor Recruitment data saved successfully in Mentor data file.")
+        #st.write('Recent Entries')
+        #st.write(df2)
+        # Fetch service account credentials from Supabase storage
+        supabase_credentials_url = "https://twetkfnfqdtsozephdse.supabase.co/storage/v1/object/sign/stemcheck/studied-indexer-431906-h1-e3634918ab42.json?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdGVtY2hlY2svc3R1ZGllZC1pbmRleGVyLTQzMTkwNi1oMS1lMzYzNDkxOGFiNDIuanNvbiIsImlhdCI6MTcyNjkwMzEzNywiZXhwIjoxNzU4NDM5MTM3fQ.d-YWFIIV3ue7eUwUIemVHKrxVSgsdy3Dm34bCfkKBPE&t=2024-09-21T07%3A18%3A57.318Z"
+        response = requests.get(supabase_credentials_url)
 
+
+        # Check the API response and create credentials
+        if response.status_code == 200:
+    # Decode the response content
+            service_account_info = response.json()
+
+            # Create credentials and authorize client
+            creds = service_account.Credentials.from_service_account_info(
+                service_account_info, scopes=['https://www.googleapis.com/auth/spreadsheets']
+            )
+            client = gspread.authorize(creds)
+
+            # Open the Google Sheet
+            sheet_key = st.secrets['SH_CARCOA']  # Replace with your sheet key
+            sheet = client.open_by_key(sheet_key).sheet1
+
+            # Get existing records from the sheet
+            existing_records = sheet.get_all_values()
+
+            # Extract the header from the first row
+            existing_headers = existing_records[0]
+
+            # Convert existing records to DataFrame (skip headers)
+            existing_df = pd.DataFrame(existing_records[1:], columns=existing_headers)
+
+
+            if 'ID' not in df1.columns:
+                st.error("ID column is missing in the new data.")
+            else:
+                # Extract the 'ID' column from the existing records and the new data
+                existing_ids = existing_df['ID'].tolist() if 'ID' in existing_df.columns else []
+                new_entries = df1[~df1['ID'].isin(existing_ids)]  # Filter rows where 'ID' is not in existing records
+
+                if not new_entries.empty:
+            # Append only new rows to the sheet
+                    rows_to_append = new_entries.values.tolist()
+                    for row in rows_to_append:
+                        sheet.append_row(row)
+                    st.success(f"{len(rows_to_append)} new entries added to the sheet.")
+                else:
+                    st.info("No new entries to add.")
+
+            # Sort the DataFrame in descending order and add serial numbers
+            df2 = df1[::-1].reset_index(drop=True)
+            df2.insert(0, "Sr No", range(len(df2), 0, -1))
+
+            # Display the updated DataFrame in Streamlit
+            st.write("Recent Entries")
+            st.write(df2)
+        # Save the data to a Google sheet.
+        #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
+            st.success("Mentor Recruitment data saved successfully in Mentor ")
+        
