@@ -121,10 +121,9 @@ if st.button(combined_button_text):
             st.write("Recent Entries")
             st.write(df2)
             st.write(f"[Open Google Sheet]({Career_sheet})")
-            
-        # Save the data to a Google sheet.
-        #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
             st.success("Career Recruitment data saved successfully in Career ")
+
+    
 
     elif Form_name == 'Mentor Recruitment':
         # SQL query to retrieve data for Mentor Recruitment
@@ -132,34 +131,33 @@ if st.button(combined_button_text):
 
         # Read data into a DataFrame
         df = pd.read_sql(sql_query, con=engine)
-        df1=pd.DataFrame(df)
+        df_mentor=pd.DataFrame(df)
         
-        # Sort the DataFrame in descending order and add Sr No
-        #df2 = df1[::-1].reset_index(drop=True)
-        #df2.insert(0, "Sr No", range(len(df1), 0, -1))  # Add Sr No column
-        
-        # Display the DataFrame in the Streamlit app
-        #st.write('Recent Entries')
-        #st.write(df2)
+
         # Fetch service account credentials from Supabase storage
         supabase_credentials_url = "https://twetkfnfqdtsozephdse.supabase.co/storage/v1/object/sign/stemcheck/studied-indexer-431906-h1-e3634918ab42.json?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdGVtY2hlY2svc3R1ZGllZC1pbmRleGVyLTQzMTkwNi1oMS1lMzYzNDkxOGFiNDIuanNvbiIsImlhdCI6MTcyNjkwMzEzNywiZXhwIjoxNzU4NDM5MTM3fQ.d-YWFIIV3ue7eUwUIemVHKrxVSgsdy3Dm34bCfkKBPE&t=2024-09-21T07%3A18%3A57.318Z"
         response = requests.get(supabase_credentials_url)
-
-
-        # Check the API response and create credentials
+    
         if response.status_code == 200:
-    # Decode the response content
+        # Decode the content of the response as a JSON keyfile and create service account credentials
             service_account_info = response.json()
-
-            # Create credentials and authorize client
-            creds = service_account.Credentials.from_service_account_info(
-                service_account_info, scopes=['https://www.googleapis.com/auth/spreadsheets']
-            )
+        
+        # Use the service account info to create credentials
+            creds = service_account.Credentials.from_service_account_info(service_account_info, scopes=['https://www.googleapis.com/auth/spreadsheets'])
             client = gspread.authorize(creds)
 
-            # Open the Google Sheet
-            sheet_key = st.secrets['SH_MENID']  # Replace with your sheet key
-            sheet = client.open_by_key(sheet_key).sheet1
+            # Insert the random number into the Google Sheet
+            sheet_key = st.secrets['SH_MENID']
+
+        
+        
+        # Insert the random number into the Google Sheet
+            #sheet_key = '1GRvYUK2pUP_aYHlgarg8vLsk8Ro1Z51-s_qwFjEDjP4'
+        
+    
+        # Open the Google Sheet by key and retrieve the specific worksheet
+            sheet = client.open_by_key(sheet_key).sheet1  # Update with the correct sheet name or index
+
 
             # Get existing records from the sheet
             existing_records = sheet.get_all_values()
@@ -170,16 +168,19 @@ if st.button(combined_button_text):
             # Convert existing records to DataFrame (skip headers)
             existing_df = pd.DataFrame(existing_records[1:], columns=existing_headers)
 
+            ID_column = 'ID'
 
-            if 'ID' not in df1.columns:
-                st.error("ID column is missing in the new data.")
+            if ID_column not in df_mentor.columns:
+                st.error(f"{ID_column} column is missing in the new data.")
             else:
-                # Extract the 'ID' column from the existing records and the new data
-                existing_ids = existing_df['ID'].tolist() if 'ID' in existing_df.columns else []
-                new_entries = df1[~df1['ID'].isin(existing_ids)]  # Filter rows where 'ID' is not in existing records
-
+            # Extract the 'Enter your WhatsApp number (with country code, DONOT ADD '+') *' column from existing records and the new data
+                existing_ids = existing_df[ID_column].tolist() if ID_column in existing_df.columns else []
+    
+            # Filter rows where 'Enter your WhatsApp number (with country code, DONOT ADD '+') *' is not in existing records
+                new_entries = df_mentor[~df_mentor[ID_column].isin(existing_ids)]  
+    
                 if not new_entries.empty:
-            # Append only new rows to the sheet
+                # Append only new rows to the sheet
                     rows_to_append = new_entries.values.tolist()
                     for row in rows_to_append:
                         sheet.append_row(row)
@@ -188,14 +189,30 @@ if st.button(combined_button_text):
                     st.info("No new entries to add.")
 
             # Sort the DataFrame in descending order and add serial numbers
-            df2 = df1[::-1].reset_index(drop=True)
-            df2.insert(0, "Sr No", range(len(df2), 0, -1))
+            df_mentor_2 = df_mentor[::-1].reset_index(drop=True)
+            df_mentor_2.insert(0, "Sr No", range(len(df_mentor_2), 0, -1))
 
             # Display the updated DataFrame in Streamlit
             st.write("Recent Entries")
-            st.write(df2)
+            st.write(df_mentor_2)
+
             st.write(f"[Open Google Sheet]({Mentor_sheet})")
+
+            
         # Save the data to a Google sheet.
         #df.to_excel(r"C:\Users\User\Downloads\Career_rec.xlsx")
-            st.success("Mentor Recruitment data saved successfully in Mentor ")
-        
+            st.success("Mentor Recruitment data saved successfully in Mentor_Sheet ")
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
